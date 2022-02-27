@@ -1,3 +1,5 @@
+# Simple program computing the disparity map with NCC
+
 # Build instructions for Ubuntu 20.04
 
 ## Requirements
