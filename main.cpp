@@ -83,17 +83,16 @@ cv::Mat compute_dispmap(const stereo_t &stereo_imgs, unsigned int numdisp,
                         int mindisp = 0, int blocksize = 21) {
   const auto &[limg, rimg] = stereo_imgs;
   cv::Mat dispmap(limg.rows, limg.cols, CV_8UC1);
-  for (unsigned w = (blocksize - 1) / 2, maxdisp = numdisp + mindisp,
-                x = maxdisp + w;
-       x < limg.cols + mindisp - w; x++) {
-    for (unsigned y = w; y < limg.rows - w; y++) {
-      cv::Rect block{cv::Point(x - w, y - w), cv::Point(x + w + 1, y + w + 1)};
-      const auto feature = limg(block);
+  for (unsigned w = blocksize / 2, y = w; y < limg.rows - w - 1; y++) {
+    for (int maxdisp = numdisp + mindisp, x = maxdisp + w;
+         x < limg.cols + mindisp - w - 1; x++) {
+      cv::Rect block{cv::Point(x - w, y - w), cv::Size(blocksize, blocksize)};
       // std::cout << block << " in ";
+      const auto feature = limg(block);
       cv::Rect slice{cv::Point(x - w - maxdisp, y - w),
                      cv::Point(x + w + 1 - mindisp, y + w + 1)};
-      const auto img = rimg(slice);
       // std::cout << slice << '\n';
+      const auto img = rimg(slice);
       cv::Mat nccs;
       cv::matchTemplate(img, feature, nccs, cv::TM_CCORR_NORMED);
       cv::Point max{};
